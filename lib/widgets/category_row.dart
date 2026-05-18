@@ -47,7 +47,7 @@ class CategoryRow extends StatelessWidget {
           Expanded(
             child: Text(
               category.name,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
           ),
           if (showPercentage) ...[
@@ -63,7 +63,7 @@ class CategoryRow extends StatelessWidget {
           ],
           Text(
             amountText,
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
           ),
         ],
       ),

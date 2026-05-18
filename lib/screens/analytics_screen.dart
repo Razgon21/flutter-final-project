@@ -33,7 +33,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final monthWeek = MockExpenseData.monthWeekAt(_safeMonthWeekIndex);
     final total =
         _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
-    final ratio = (total / MockExpenseData.monthlyBudget).clamp(0.0, 1.0);
+    final periodBudget = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.monthlyBudget / 4
+        : MockExpenseData.monthlyBudget / 30;
+    final ratio = (total / periodBudget).clamp(0.0, 1.0);
     final topFive = _period == _AnalyticsPeriod.month
         ? MockExpenseData.topFiveForMonthWeek(_safeMonthWeekIndex)
         : MockExpenseData.topFiveForDay(_safeWeekIndex);
@@ -127,8 +130,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           color: const Color(0xFF2E90FA),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'Месячный бюджет',
+                        child: Text(
+                          _period == _AnalyticsPeriod.month
+                              ? 'Недельный бюджет'
+                              : 'Дневной бюджет',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
