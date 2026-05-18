@@ -74,13 +74,14 @@ class HomeScreen extends StatelessWidget {
                     Icon(
                       Icons.analytics_outlined,
                       color: Colors.white,
-                      size: 18,
+                      size: 24,
                     ),
                     SizedBox(width: 8),
                     Text(
                       'Расширенная аналитика',
                       style: TextStyle(
                         color: Colors.white,
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

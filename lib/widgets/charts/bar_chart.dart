@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
 class BarChart extends StatelessWidget {
-  const BarChart({super.key, required this.values});
+  const BarChart({
+    super.key,
+    required this.values,
+    this.labels,
+    this.selectedIndex,
+    this.onBarTap,
+  });
 
   final List<double> values;
+  final List<String>? labels;
+  final int? selectedIndex;
+  final ValueChanged<int>? onBarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -20,35 +29,45 @@ class BarChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: List.generate(values.length, (index) {
           final value = values[index];
-          final selected = index == values.length - 2;
+          final selected = selectedIndex == null
+              ? index == values.length - 2
+              : index == selectedIndex;
           final barHeight = max == 0 ? 0.0 : (value / max) * 70 + 12;
+          final label = labels != null && labels!.length > index
+              ? labels![index]
+              : '${index + 1}';
           return Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeOut,
-                  width: 14,
-                  height: barHeight,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color:
-                        selected ? const Color(0xFF2E90FA) : const Color(0xFFDAECFF),
+            child: GestureDetector(
+              onTap: onBarTap == null ? null : () => onBarTap!(index),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeOut,
+                    width: 14,
+                    height: barHeight,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: selected
+                          ? const Color(0xFF2E90FA)
+                          : const Color(0xFFDAECFF),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${index + 1}',
-                  style: TextStyle(
-                    color: selected
-                        ? const Color(0xFF2E90FA)
-                        : const Color(0xFF98A2B3),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11,
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: selected
+                          ? const Color(0xFF2E90FA)
+                          : const Color(0xFF98A2B3),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }),

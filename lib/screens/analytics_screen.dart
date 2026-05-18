@@ -19,18 +19,38 @@ class AnalyticsScreen extends StatefulWidget {
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   _AnalyticsPeriod _period = _AnalyticsPeriod.month;
+  int? _selectedWeekIndex = 6;
+  int? _selectedMonthWeekIndex = 3;
+
+  int get _safeWeekIndex => (_selectedWeekIndex ?? 6).clamp(
+        0,
+        MockExpenseData.weekDays.length - 1,
+      );
+  int get _safeMonthWeekIndex => (_selectedMonthWeekIndex ?? 3).clamp(
+        0,
+        MockExpenseData.monthWeeks.length - 1,
+      );
 
   @override
   Widget build(BuildContext context) {
-    final total = MockExpenseData.totalExpenses;
-    final ratio = MockExpenseData.spentRatio.clamp(0.0, 1.0);
-    final topFive = MockExpenseData.topFive;
+    final weekDay = MockExpenseData.dayAt(_safeWeekIndex);
+    final monthWeek = MockExpenseData.monthWeekAt(_safeMonthWeekIndex);
+    final total = _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
+    final ratio = (total / MockExpenseData.monthlyBudget).clamp(0.0, 1.0);
+    final topFive = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.topFiveForMonthWeek(_safeMonthWeekIndex)
+        : MockExpenseData.topFiveForDay(_safeWeekIndex);
     final chartValues = _period == _AnalyticsPeriod.month
         ? MockExpenseData.monthTrend
         : MockExpenseData.weekTrend;
     final subtitleDate = _period == _AnalyticsPeriod.month
-        ? 'Май 2026'
-        : 'Последние 7 дней';
+        ? monthWeek.dateLabel
+        : weekDay.dateLabel;
+    final chartLabels = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.monthLabels
+        : MockExpenseData.weekLabels;
+    final chartSelectedIndex =
+        _period == _AnalyticsPeriod.month ? _safeMonthWeekIndex : _safeWeekIndex;
 
     return SafeArea(
       child: ListView(
@@ -89,7 +109,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Траты за май',
+                        'Траты',
                         style: TextStyle(color: Color(0xFF667085)),
                       ),
                       const SizedBox(height: 4),
@@ -144,18 +164,33 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          BarChart(values: chartValues),
+          BarChart(
+            values: chartValues,
+            labels: chartLabels,
+            selectedIndex: chartSelectedIndex,
+            onBarTap: (index) {
+              setState(() {
+                if (_period == _AnalyticsPeriod.week) {
+                  _selectedWeekIndex = index;
+                } else {
+                  _selectedMonthWeekIndex = index;
+                }
+              });
+            },
+          ),
           const SizedBox(height: 14),
-          const Row(
+          Row(
             children: [
               Text(
-                'Топ-5 категорий расходов',
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                _period == _AnalyticsPeriod.month
+                    ? 'Категории за неделю'
+                    : 'Категории за день',
+                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
               ),
-              Spacer(),
+              const Spacer(),
               Text(
-                '70% ↗',
-                style: TextStyle(
+                '${total.toStringAsFixed(0)} ₽',
+                style: const TextStyle(
                   color: Color(0xFF2E90FA),
                   fontWeight: FontWeight.w700,
                 ),

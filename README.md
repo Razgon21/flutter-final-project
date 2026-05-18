@@ -1,16 +1,57 @@
-# final_project
+# Финансовый трекер (Flutter)
 
-A new Flutter project.
+Мобильное приложение-трекер расходов на Flutter с двумя экранами:
 
-## Getting Started
+- **Главная**: общая сумма трат за май, круговая диаграмма, легенда категорий и список трат.
+- **Аналитика**: карточка с итогами, переключатель **Неделя/Месяц**, столбчатый график и топ категорий.
 
-This project is a starting point for a Flutter application.
+Проект использует моковые данные (без бэкенда и базы данных).
 
-A few resources to get you started if this is your first Flutter project:
+## Возможности
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Отображение трат по категориям.
+- Кастомный нижний navigation bar.
+- Переход на экран аналитики с главной кнопкой **«Расширенная аналитика»**.
+- Возврат на главную через кнопку назад и через пункт **«Главная»** в нижнем меню.
+- Переключение периода в аналитике: **Неделя / Месяц**.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Запуск проекта
+
+### 1) Установить зависимости
+
+```bash
+flutter pub get
+```
+
+### 2) Запустить приложение
+
+```bash
+flutter run
+```
+
+### Запуск в Chrome (Web)
+
+```bash
+flutter run -d chrome
+```
+
+## Hot Reload / Hot Restart
+
+После запуска в терминале:
+
+- `r` — hot reload
+- `R` — hot restart
+- `q` — завершить запуск
+
+## Текущие данные (моки)
+
+- Все суммы категорий заданы в `lib/data/mock_expense_data.dart`.
+- Данные для графика:
+  - `weekTrend` — для режима **Неделя**
+  - `monthTrend` — для режима **Месяц**
+
+## Дальнейшее развитие
+
+- Подключить локальное хранилище (`Hive`/`sqflite`) вместо моков.
+- Добавить экран планирования бюджета (пункт уже есть в нижнем меню как неактивный).
+- Добавить CRUD операций (создание/редактирование/удаление трат).
