@@ -4,14 +4,10 @@ import '../data/mock_expense_data.dart';
 import '../widgets/category_row.dart';
 import '../widgets/charts/bar_chart.dart';
 import '../widgets/charts/ring_progress.dart';
+import '../widgets/pressable.dart';
 
 class AnalyticsScreen extends StatefulWidget {
-  const AnalyticsScreen({
-    super.key,
-    required this.onBackHome,
-  });
-
-  final VoidCallback onBackHome;
+  const AnalyticsScreen({super.key});
 
   @override
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
@@ -35,7 +31,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget build(BuildContext context) {
     final weekDay = MockExpenseData.dayAt(_safeWeekIndex);
     final monthWeek = MockExpenseData.monthWeekAt(_safeMonthWeekIndex);
-    final total = _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
+    final total =
+        _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
     final ratio = (total / MockExpenseData.monthlyBudget).clamp(0.0, 1.0);
     final topFive = _period == _AnalyticsPeriod.month
         ? MockExpenseData.topFiveForMonthWeek(_safeMonthWeekIndex)
@@ -49,8 +46,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final chartLabels = _period == _AnalyticsPeriod.month
         ? MockExpenseData.monthLabels
         : MockExpenseData.weekLabels;
-    final chartSelectedIndex =
-        _period == _AnalyticsPeriod.month ? _safeMonthWeekIndex : _safeWeekIndex;
+    final chartSelectedIndex = _period == _AnalyticsPeriod.month
+        ? _safeMonthWeekIndex
+        : _safeWeekIndex;
 
     return SafeArea(
       child: ListView(
@@ -58,9 +56,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: widget.onBackHome,
-                behavior: HitTestBehavior.opaque,
+              Pressable(
+                onTap: () => Navigator.pop(context),
                 child: Container(
                   width: 38,
                   height: 38,
@@ -157,7 +154,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 14),
           Text(
             subtitleDate,
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF667085),
               fontWeight: FontWeight.w600,
               fontSize: 15,
@@ -185,7 +182,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 _period == _AnalyticsPeriod.month
                     ? 'Категории за неделю'
                     : 'Категории за день',
-                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                style:
+                    const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               Text(
@@ -263,10 +261,10 @@ class _SegmentLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
+      child: Pressable(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
@@ -277,7 +275,9 @@ class _SegmentLabel extends StatelessWidget {
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: selected ? const Color(0xFF2E90FA) : const Color(0xFF667085),
+              color: selected
+                  ? const Color(0xFF2E90FA)
+                  : const Color(0xFF667085),
               fontWeight: FontWeight.w700,
             ),
           ),

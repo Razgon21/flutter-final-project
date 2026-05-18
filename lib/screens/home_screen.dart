@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_expense_data.dart';
+import '../models/expense_category.dart';
+import '../screens/expense_detailes.dart';
+import '../navigation/app_routes.dart';
 import '../widgets/category_row.dart';
 import '../widgets/charts/donut_chart.dart';
+import '../widgets/pressable.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
@@ -60,10 +64,11 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Center(
-            child: GestureDetector(
+            child: Pressable(
               onTap: onOpenAnalytics,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFF2E90FA),
                   borderRadius: BorderRadius.circular(14),
@@ -92,9 +97,19 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ...categories.map((category) {
-            return CategoryRow(
-              category: category,
-              amountText: '${category.amount.toStringAsFixed(0)} ₽',
+            return Pressable(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  slideRightRoute(
+                    ExpenseDetailsScreen(category: category),
+                  ),
+                );
+              },
+              child: CategoryRow(
+                category: category,
+                amountText: '${category.amount.toStringAsFixed(0)} ₽',
+              ),
             );
           }),
         ],

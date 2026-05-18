@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_expense_data.dart';
+import '../widgets/pressable.dart';
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -13,7 +14,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
   late DateTime _currentMonth;
   int? _selectedDay;
 
-  static const _accentBlue = Color(0xFF1E88FF);
+  static const _accentBlue = Color(0xFF2E90FA);
   static const _bgColor = Color(0xFFF7FAFF);
 
   @override
@@ -22,13 +23,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
 
-  void _prevMonth() =>
-      setState(() => _currentMonth =
-          DateTime(_currentMonth.year, _currentMonth.month - 1));
+  void _prevMonth() => setState(
+      () => _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1));
 
-  void _nextMonth() =>
-      setState(() => _currentMonth =
-          DateTime(_currentMonth.year, _currentMonth.month + 1));
+  void _nextMonth() => setState(
+      () => _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1));
 
   int get _daysInMonth =>
       DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
@@ -54,53 +53,37 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     return Scaffold(
       backgroundColor: _bgColor,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: _accentBlue, size: 28),
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        title: const Text(
-          'Monthly Budget',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A2E),
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _HeroSection(),
-                  _BudgetProgressSection(
-                    spent: spent,
-                    budget: budget,
-                    ratio: ratio,
-                    percent: percent,
-                  ),
-                  _CalendarSection(
-                    currentMonth: _currentMonth,
-                    monthLabel: _monthLabel,
-                    daysInMonth: _daysInMonth,
-                    selectedDay: _selectedDay,
-                    onPrev: _prevMonth,
-                    onNext: _nextMonth,
-                    onDayTap: (day) => setState(() => _selectedDay = day),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _HeroSection(),
+                    _BudgetProgressSection(
+                      spent: spent,
+                      budget: budget,
+                      ratio: ratio,
+                      percent: percent,
+                    ),
+                    _CalendarSection(
+                      currentMonth: _currentMonth,
+                      monthLabel: _monthLabel,
+                      daysInMonth: _daysInMonth,
+                      selectedDay: _selectedDay,
+                      onPrev: _prevMonth,
+                      onNext: _nextMonth,
+                      onDayTap: (day) => setState(() => _selectedDay = day),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
-          ),
-          _SetBudgetButton(),
-        ],
+            _SetBudgetButton(),
+          ],
+        ),
       ),
     );
   }
@@ -122,7 +105,7 @@ class _HeroSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Set a budget and track your\nspending progress',
+            'Установите бюджет и отслеживайте\nсвои расходы',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -139,9 +122,7 @@ class _HeroSection extends StatelessWidget {
 class _WalletIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _WalletPainter(),
-    );
+    return CustomPaint(painter: _WalletPainter());
   }
 }
 
@@ -156,44 +137,31 @@ class _WalletPainter extends CustomPainter {
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(8, 18, w - 10, h - 20),
-        const Radius.circular(12),
-      ),
+          Rect.fromLTWH(8, 18, w - 10, h - 20), const Radius.circular(12)),
       shadowPaint,
     );
 
-    final walletPaint = Paint()..color = const Color(0xFFC4873A);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(4, 14, w - 8, h - 18),
-        const Radius.circular(10),
-      ),
-      walletPaint,
+          Rect.fromLTWH(4, 14, w - 8, h - 18), const Radius.circular(10)),
+      Paint()..color = const Color(0xFFC4873A),
     );
 
-    final flapPaint = Paint()..color = const Color(0xFFD4973E);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(4, 14, w - 8, 26),
-        const Radius.circular(10),
-      ),
-      flapPaint,
+          Rect.fromLTWH(4, 14, w - 8, 26), const Radius.circular(10)),
+      Paint()..color = const Color(0xFFD4973E),
     );
 
     void drawCoin(double cx, double cy, double r) {
+      canvas.drawCircle(Offset(cx, cy), r, Paint()..color = const Color(0xFFFFCA28));
       canvas.drawCircle(
-        Offset(cx, cy),
-        r,
-        Paint()..color = const Color(0xFFFFCA28),
-      );
-      canvas.drawCircle(
-        Offset(cx, cy),
-        r,
-        Paint()
-          ..color = const Color(0xFFFFB300)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2,
-      );
+          Offset(cx, cy),
+          r,
+          Paint()
+            ..color = const Color(0xFFFFB300)
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2);
     }
 
     drawCoin(w * 0.18, h * 0.82, 9);
@@ -207,12 +175,7 @@ class _WalletPainter extends CustomPainter {
 
     for (int i = 0; i < 3; i++) {
       final rect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          w * 0.35 + i * 4.0,
-          h * 0.10 - i * 4.0,
-          w * 0.50,
-          h * 0.38,
-        ),
+        Rect.fromLTWH(w * 0.35 + i * 4.0, h * 0.10 - i * 4.0, w * 0.50, h * 0.38),
         const Radius.circular(4),
       );
       canvas.drawRRect(rect, billPaint);
@@ -237,8 +200,7 @@ class _BudgetProgressSection extends StatelessWidget {
   final double ratio;
   final int percent;
 
-  String _fmt(double v) =>
-      v.toStringAsFixed(0).replaceAllMapped(
+  String _fmt(double v) => v.toStringAsFixed(0).replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
         (m) => '${m[1]},',
       );
@@ -256,7 +218,7 @@ class _BudgetProgressSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Budget Spent',
+                'Потрачено',
                 style: TextStyle(fontSize: 13, color: Color(0xFF9E9EB8)),
               ),
               Text(
@@ -270,19 +232,16 @@ class _BudgetProgressSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-
-          // Progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 7,
               backgroundColor: const Color(0xFFE8EAF6),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1E88FF)),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E90FA)),
             ),
           ),
           const SizedBox(height: 10),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -295,11 +254,8 @@ class _BudgetProgressSection extends StatelessWidget {
                 ),
               ),
               Text(
-                '$percent% so far',
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF9E9EB8),
-                ),
+                '$percent% потрачено',
+                style: const TextStyle(fontSize: 13, color: Color(0xFF9E9EB8)),
               ),
             ],
           ),
@@ -331,8 +287,8 @@ class _CalendarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final isCurrentMonth = currentMonth.year == today.year &&
-        currentMonth.month == today.month;
+    final isCurrentMonth =
+        currentMonth.year == today.year && currentMonth.month == today.month;
 
     return Container(
       color: Colors.white,
@@ -344,7 +300,8 @@ class _CalendarSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_left, size: 20, color: Color(0xFF9E9EB8)),
+                icon: const Icon(Icons.chevron_left,
+                    size: 20, color: Color(0xFF9E9EB8)),
                 onPressed: onPrev,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -358,7 +315,8 @@ class _CalendarSection extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right, size: 20, color: Color(0xFF9E9EB8)),
+                icon: const Icon(Icons.chevron_right,
+                    size: 20, color: Color(0xFF9E9EB8)),
                 onPressed: onNext,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -366,7 +324,6 @@ class _CalendarSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -386,16 +343,17 @@ class _CalendarSection extends StatelessWidget {
               Color textColor = const Color(0xFF333344);
 
               if (isSelected) {
-                bgColor = const Color(0xFF1E88FF);
+                bgColor = const Color(0xFF2E90FA);
                 textColor = Colors.white;
               } else if (isToday) {
                 bgColor = const Color(0xFFE3F0FF);
-                textColor = const Color(0xFF1E88FF);
+                textColor = const Color(0xFF2E90FA);
               }
 
-              return GestureDetector(
+              return Pressable(
                 onTap: () => onDayTap(day),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
                   decoration: BoxDecoration(
                     color: bgColor,
                     shape: BoxShape.circle,
@@ -430,19 +388,22 @@ class _SetBudgetButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         height: 52,
-        child: ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1E88FF),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
+        child: Pressable(
+          onTap: () {},
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF2E90FA),
               borderRadius: BorderRadius.circular(16),
             ),
-          ),
-          child: const Text(
-            'Set Budget',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            alignment: Alignment.center,
+            child: const Text(
+              'Установить бюджет',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),

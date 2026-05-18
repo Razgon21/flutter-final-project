@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'pressable.dart';
+
 class CustomBottomMenu extends StatelessWidget {
   const CustomBottomMenu({
     super.key,
@@ -39,9 +41,8 @@ class CustomBottomMenu extends StatelessWidget {
               selected: selectedIndex == 0,
               onTap: () => onTabSelected(0),
             ),
-            GestureDetector(
+            Pressable(
               onTap: onCenterPressed,
-              behavior: HitTestBehavior.opaque,
               child: Container(
                 width: 76,
                 height: 60,
@@ -58,10 +59,10 @@ class CustomBottomMenu extends StatelessWidget {
               ),
             ),
             _TabItem(
-              title: 'Планирование бюджета',
+              title: 'Бюджет',
               icon: Icons.calendar_month_rounded,
-              selected: false,
-              enabled: false,
+              selected: selectedIndex == 1,
+              onTap: () => onTabSelected(1),
             ),
           ],
         ),
@@ -76,28 +77,24 @@ class _TabItem extends StatelessWidget {
     required this.icon,
     required this.selected,
     this.onTap,
-    this.enabled = true,
   });
 
   final String title;
   final IconData icon;
   final bool selected;
   final VoidCallback? onTap;
-  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    final color = !enabled
-        ? const Color(0xFFB5BFCB)
-        : selected
-            ? const Color(0xFF2E90FA)
-            : const Color(0xFF98A2B3);
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
+    final color = selected
+        ? const Color(0xFF2E90FA)
+        : const Color(0xFF98A2B3);
+
+    return Pressable(
+      onTap: onTap ?? () {},
       child: SizedBox(
-        width: enabled ? 84 : 110,
-        height: enabled ? 56 : 60,
+        width: 84,
+        height: 56,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -106,11 +103,11 @@ class _TabItem extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              maxLines: enabled ? 1 : 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: color,
-                fontSize: enabled ? 12 : 10,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
