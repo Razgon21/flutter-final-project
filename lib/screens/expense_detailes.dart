@@ -147,7 +147,7 @@ class _ExpenseDetailsScreenState extends State<ExpenseDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Коноплина Арина Александровна',
+                  'Ракета Арина Александровна',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E)),
                 ),
                 SizedBox(height: 2),

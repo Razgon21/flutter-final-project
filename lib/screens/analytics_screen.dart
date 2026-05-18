@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../data/mock_expense_data.dart';
+import '../navigation/app_routes.dart';
+import '../screens/budget_screen.dart';
 import '../widgets/category_row.dart';
 import '../widgets/charts/bar_chart.dart';
 import '../widgets/charts/ring_progress.dart';
 import '../widgets/pressable.dart';
 
 class AnalyticsScreen extends StatefulWidget {
-  const AnalyticsScreen({super.key});
+  const AnalyticsScreen({
+    super.key,
+    this.onBackHome,
+    this.onOpenBudget,
+  });
+
+  final VoidCallback? onBackHome;
+  final VoidCallback? onOpenBudget;
 
   @override
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
@@ -18,24 +27,32 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   int? _selectedWeekIndex = 6;
   int? _selectedMonthWeekIndex = 3;
 
-  int get _safeWeekIndex => (_selectedWeekIndex ?? 6).clamp(
-        0,
-        MockExpenseData.weekDays.length - 1,
-      );
-  int get _safeMonthWeekIndex => (_selectedMonthWeekIndex ?? 3).clamp(
-        0,
-        MockExpenseData.monthWeeks.length - 1,
-      );
+  int get _safeWeekIndex =>
+      (_selectedWeekIndex ?? 6).clamp(0, MockExpenseData.weekDays.length - 1);
+  int get _safeMonthWeekIndex => (_selectedMonthWeekIndex ?? 3)
+      .clamp(0, MockExpenseData.monthWeeks.length - 1);
+
+  void _openBudget() {
+    if (widget.onOpenBudget != null) {
+      widget.onOpenBudget!();
+    } else {
+      Navigator.of(context).push(slideUpRoute(const BudgetScreen()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final weekDay = MockExpenseData.dayAt(_safeWeekIndex);
     final monthWeek = MockExpenseData.monthWeekAt(_safeMonthWeekIndex);
-    final total =
-        _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
+    final total = _period == _AnalyticsPeriod.month
+        ? monthWeek.total
+        : weekDay.total;
+    // Бюджет недели ~30k и дня ~4.2k → реалистичная динамика 72–93%
+    const weekBudget = 30000.0;
+    const dayBudget = 8000.0;
     final periodBudget = _period == _AnalyticsPeriod.month
-        ? MockExpenseData.monthlyBudget / 4
-        : MockExpenseData.monthlyBudget / 30;
+        ? weekBudget
+        : dayBudget;
     final ratio = (total / periodBudget).clamp(0.0, 1.0);
     final topFive = _period == _AnalyticsPeriod.month
         ? MockExpenseData.topFiveForMonthWeek(_safeMonthWeekIndex)
@@ -49,17 +66,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final chartLabels = _period == _AnalyticsPeriod.month
         ? MockExpenseData.monthLabels
         : MockExpenseData.weekLabels;
-    final chartSelectedIndex =
-        _period == _AnalyticsPeriod.month ? _safeMonthWeekIndex : _safeWeekIndex;
+    final chartSelectedIndex = _period == _AnalyticsPeriod.month
+        ? _safeMonthWeekIndex
+        : _safeWeekIndex;
 
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
         children: [
+          // ── Шапка ──────────────────────────────────────────────────────────
           Row(
             children: [
               GestureDetector(
-                onTap: widget.onBackHome,
+                onTap: widget.onBackHome ?? () => Navigator.maybePop(context),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
                   width: 38,
@@ -69,10 +88,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     borderRadius: BorderRadius.circular(19),
                     border: Border.all(color: const Color(0xFFE4E7EC)),
                   ),
-                  child: const Icon(
-                    Icons.arrow_back_rounded,
-                    color: Color(0xFF667085),
-                  ),
+                  child: const Icon(Icons.arrow_back_rounded,
+                      color: Color(0xFF667085)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -89,6 +106,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ],
           ),
           const SizedBox(height: 14),
+
+          // ── Карточка трат + кольцо ─────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -108,33 +127,31 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Траты',
-                        style: TextStyle(color: Color(0xFF667085)),
-                      ),
+                      const Text('Траты',
+                          style: TextStyle(color: Color(0xFF667085))),
                       const SizedBox(height: 4),
                       Text(
                         '${total.toStringAsFixed(0)} ₽',
                         style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                        ),
+                            fontSize: 36, fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 9,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E90FA),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'Месячный бюджет',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
+
+                      // ↓ Кнопка → BudgetScreen (слайд снизу)
+                      Pressable(
+                        onTap: _openBudget,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2E90FA),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            'Месячный бюджет',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -150,62 +167,64 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
           ),
           const SizedBox(height: 14),
+
+          // ── Сегмент: Неделя / Месяц ────────────────────────────────────────
           _SegmentControl(
             selected: _period,
-            onChanged: (period) => setState(() => _period = period),
+            onChanged: (p) => setState(() => _period = p),
           ),
           const SizedBox(height: 14),
+
           Text(
             subtitleDate,
-            style: TextStyle(
-              color: Color(0xFF667085),
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
+            style: const TextStyle(
+                color: Color(0xFF667085),
+                fontWeight: FontWeight.w600,
+                fontSize: 15),
           ),
           const SizedBox(height: 10),
+
+          // ── Бар-чарт ───────────────────────────────────────────────────────
           BarChart(
             values: chartValues,
             labels: chartLabels,
             selectedIndex: chartSelectedIndex,
-            onBarTap: (index) {
-              setState(() {
-                if (_period == _AnalyticsPeriod.week) {
-                  _selectedWeekIndex = index;
-                } else {
-                  _selectedMonthWeekIndex = index;
-                }
-              });
-            },
+            onBarTap: (index) => setState(() {
+              if (_period == _AnalyticsPeriod.week) {
+                _selectedWeekIndex = index;
+              } else {
+                _selectedMonthWeekIndex = index;
+              }
+            }),
           ),
           const SizedBox(height: 14),
+
+          // ── Топ категорий ──────────────────────────────────────────────────
           Row(
             children: [
               Text(
                 _period == _AnalyticsPeriod.month
                     ? 'Категории за неделю'
                     : 'Категории за день',
-                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                    fontSize: 19, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               Text(
                 '${total.toStringAsFixed(0)} ₽',
                 style: const TextStyle(
-                  color: Color(0xFF2E90FA),
-                  fontWeight: FontWeight.w700,
-                ),
+                    color: Color(0xFF2E90FA),
+                    fontWeight: FontWeight.w700),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          ...topFive.map((category) {
-            return CategoryRow(
-              category: category,
-              amountText: '${category.amount.toStringAsFixed(0)} ₽',
-              showPercentage: true,
-              total: total,
-            );
-          }),
+          ...topFive.map((category) => CategoryRow(
+                category: category,
+                amountText: '${category.amount.toStringAsFixed(0)} ₽',
+                showPercentage: true,
+                total: total,
+              )),
         ],
       ),
     );
@@ -215,8 +234,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 enum _AnalyticsPeriod { week, month }
 
 class _SegmentControl extends StatelessWidget {
-  const _SegmentControl({required this.selected, required this.onChanged});
-
+  const _SegmentControl(
+      {required this.selected, required this.onChanged});
   final _AnalyticsPeriod selected;
   final ValueChanged<_AnalyticsPeriod> onChanged;
 
@@ -247,8 +266,10 @@ class _SegmentControl extends StatelessWidget {
 }
 
 class _SegmentLabel extends StatelessWidget {
-  const _SegmentLabel({required this.text, required this.selected, required this.onTap});
-
+  const _SegmentLabel(
+      {required this.text,
+      required this.selected,
+      required this.onTap});
   final String text;
   final bool selected;
   final VoidCallback onTap;
@@ -258,12 +279,13 @@ class _SegmentLabel extends StatelessWidget {
     return Expanded(
       child: Pressable(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque,
         child: Container(
           margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFEDF5FF) : Colors.white,
+            color: selected
+                ? const Color(0xFFEDF5FF)
+                : Colors.white,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
