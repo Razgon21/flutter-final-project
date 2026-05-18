@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-
 import '../data/mock_expense_data.dart';
+import '../models/expense_category.dart';
+import '../navigation/app_routes.dart';
+import '../screens/analytics_screen.dart';
+import '../screens/expense_detailes.dart';
 import '../widgets/category_row.dart';
 import '../widgets/charts/donut_chart.dart';
+import '../widgets/pressable.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({
-    super.key,
-    required this.onOpenAnalytics,
-  });
-
-  final VoidCallback onOpenAnalytics;
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,17 +50,17 @@ class HomeScreen extends StatelessWidget {
           Wrap(
             spacing: 10,
             runSpacing: 8,
-            children: categories.map((category) {
-              return _ChartLegendItem(
-                color: category.color,
-                label: category.name,
-              );
-            }).toList(),
+            children: categories.map((category) => _ChartLegendItem(
+              color: category.color,
+              label: category.name,
+            )).toList(),
           ),
           const SizedBox(height: 12),
           Center(
-            child: GestureDetector(
-              onTap: onOpenAnalytics,
+            child: Pressable(
+              onTap: () => Navigator.of(context).push(
+                slideRightRoute(const AnalyticsScreen()),
+              ),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
@@ -71,11 +70,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.analytics_outlined,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    Icon(Icons.analytics_outlined, color: Colors.white, size: 24),
                     SizedBox(width: 8),
                     Text(
                       'Расширенная аналитика',
@@ -91,12 +86,15 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          ...categories.map((category) {
-            return CategoryRow(
+          ...categories.map((category) => Pressable(
+            onTap: () => Navigator.of(context).push(
+              slideRightRoute(ExpenseDetailsScreen(category: category)),
+            ),
+            child: CategoryRow(
               category: category,
               amountText: '${category.amount.toStringAsFixed(0)} ₽',
-            );
-          }),
+            ),
+          )),
         ],
       ),
     );
@@ -104,10 +102,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _ChartLegendItem extends StatelessWidget {
-  const _ChartLegendItem({
-    required this.color,
-    required this.label,
-  });
+  const _ChartLegendItem({required this.color, required this.label});
 
   final Color color;
   final String label;
@@ -127,10 +122,7 @@ class _ChartLegendItem extends StatelessWidget {
           Container(
             width: 9,
             height: 9,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 6),
           Text(
