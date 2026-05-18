@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../data/mock_expense_data.dart';
 import '../widgets/category_row.dart';
 import '../widgets/charts/bar_chart.dart';
@@ -17,26 +18,37 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   int? _selectedWeekIndex = 6;
   int? _selectedMonthWeekIndex = 3;
 
-  int get _safeWeekIndex =>
-      (_selectedWeekIndex ?? 6).clamp(0, MockExpenseData.weekDays.length - 1);
-  int get _safeMonthWeekIndex =>
-      (_selectedMonthWeekIndex ?? 3).clamp(0, MockExpenseData.monthWeeks.length - 1);
+  int get _safeWeekIndex => (_selectedWeekIndex ?? 6).clamp(
+        0,
+        MockExpenseData.weekDays.length - 1,
+      );
+  int get _safeMonthWeekIndex => (_selectedMonthWeekIndex ?? 3).clamp(
+        0,
+        MockExpenseData.monthWeeks.length - 1,
+      );
 
   @override
   Widget build(BuildContext context) {
     final weekDay = MockExpenseData.dayAt(_safeWeekIndex);
     final monthWeek = MockExpenseData.monthWeekAt(_safeMonthWeekIndex);
-    final total = _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
-    final ratio = (total / MockExpenseData.monthlyBudget).clamp(0.0, 1.0);
+    final total =
+        _period == _AnalyticsPeriod.month ? monthWeek.total : weekDay.total;
+    final periodBudget = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.monthlyBudget / 4
+        : MockExpenseData.monthlyBudget / 30;
+    final ratio = (total / periodBudget).clamp(0.0, 1.0);
     final topFive = _period == _AnalyticsPeriod.month
         ? MockExpenseData.topFiveForMonthWeek(_safeMonthWeekIndex)
         : MockExpenseData.topFiveForDay(_safeWeekIndex);
-    final chartValues =
-        _period == _AnalyticsPeriod.month ? MockExpenseData.monthTrend : MockExpenseData.weekTrend;
-    final subtitleDate =
-        _period == _AnalyticsPeriod.month ? monthWeek.dateLabel : weekDay.dateLabel;
-    final chartLabels =
-        _period == _AnalyticsPeriod.month ? MockExpenseData.monthLabels : MockExpenseData.weekLabels;
+    final chartValues = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.monthTrend
+        : MockExpenseData.weekTrend;
+    final subtitleDate = _period == _AnalyticsPeriod.month
+        ? monthWeek.dateLabel
+        : weekDay.dateLabel;
+    final chartLabels = _period == _AnalyticsPeriod.month
+        ? MockExpenseData.monthLabels
+        : MockExpenseData.weekLabels;
     final chartSelectedIndex =
         _period == _AnalyticsPeriod.month ? _safeMonthWeekIndex : _safeWeekIndex;
 
@@ -46,8 +58,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           Row(
             children: [
-              Pressable(
-                onTap: () => Navigator.of(context).pop(),
+              GestureDetector(
+                onTap: widget.onBackHome,
+                behavior: HitTestBehavior.opaque,
                 child: Container(
                   width: 38,
                   height: 38,
@@ -56,7 +69,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     borderRadius: BorderRadius.circular(19),
                     border: Border.all(color: const Color(0xFFE4E7EC)),
                   ),
-                  child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF667085)),
+                  child: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Color(0xFF667085),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -79,7 +95,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
-                BoxShadow(color: Color(0x12000000), blurRadius: 16, offset: Offset(0, 5)),
+                BoxShadow(
+                  color: Color(0x12000000),
+                  blurRadius: 16,
+                  offset: Offset(0, 5),
+                ),
               ],
             ),
             child: Row(
@@ -88,22 +108,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Траты', style: TextStyle(color: Color(0xFF667085))),
+                      const Text(
+                        'Траты',
+                        style: TextStyle(color: Color(0xFF667085)),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         '${total.toStringAsFixed(0)} ₽',
-                        style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800),
+                        style: const TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 9,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF2E90FA),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
                           'Месячный бюджет',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -125,7 +157,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 14),
           Text(
             subtitleDate,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF667085),
               fontWeight: FontWeight.w600,
               fontSize: 15,
@@ -150,23 +182,30 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           Row(
             children: [
               Text(
-                _period == _AnalyticsPeriod.month ? 'Категории за неделю' : 'Категории за день',
+                _period == _AnalyticsPeriod.month
+                    ? 'Категории за неделю'
+                    : 'Категории за день',
                 style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               Text(
                 '${total.toStringAsFixed(0)} ₽',
-                style: const TextStyle(color: Color(0xFF2E90FA), fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: Color(0xFF2E90FA),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          ...topFive.map((category) => CategoryRow(
-            category: category,
-            amountText: '${category.amount.toStringAsFixed(0)} ₽',
-            showPercentage: true,
-            total: total,
-          )),
+          ...topFive.map((category) {
+            return CategoryRow(
+              category: category,
+              amountText: '${category.amount.toStringAsFixed(0)} ₽',
+              showPercentage: true,
+              total: total,
+            );
+          }),
         ],
       ),
     );
@@ -219,9 +258,8 @@ class _SegmentLabel extends StatelessWidget {
     return Expanded(
       child: Pressable(
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
           margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
@@ -232,7 +270,9 @@ class _SegmentLabel extends StatelessWidget {
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: selected ? const Color(0xFF2E90FA) : const Color(0xFF667085),
+              color: selected
+                  ? const Color(0xFF2E90FA)
+                  : const Color(0xFF667085),
               fontWeight: FontWeight.w700,
             ),
           ),
